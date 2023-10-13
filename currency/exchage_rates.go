@@ -2,6 +2,8 @@
 package currency
 
 import (
+	"fmt"
+	"strconv"
 	"strings"
 	"time"
 
@@ -19,6 +21,21 @@ type RawExchangeRate struct {
 
 
 // TODO: write functions to clean the raw exchange rates
+type ExchangeRate struct {
+	Country string
+	Currency string
+	ExchangeDate time.Time
+	ScrapeDate time.Time
+	Rate float64
+}
+
+
+var CountryCodes = map[string]string{
+	"australia": "au",
+	"emu members": "eu",
+	"united kingdom": "gb",
+	"canada": "ca",
+}
 
 
 func ScrapeExchageRates() []RawExchangeRate {
@@ -40,6 +57,7 @@ func ScrapeExchageRates() []RawExchangeRate {
 
 	// get exchange date
 	c.OnHTML("thead tr th:last-of-type", func(e *colly.HTMLElement) {
+		fmt.Println(e.Text)
 		ed = e.Text
 	})
 
@@ -80,7 +98,35 @@ func ScrapeExchageRates() []RawExchangeRate {
 
 	c.Visit(url)
 
+	// fmt.Println(rates[0].ScrapeDate)
+	// fmt.Println(rates[0].ExchangeDate)
+
 	return rates
+}
+
+
+func CleanExchangeRate(raw RawExchangeRate) ExchangeRate {
+	cleanRate, e := strconv.ParseFloat(raw.Rate, 8)
+	if e != nil {
+		panic(e)
+	}
+	return ExchangeRate {
+		Country: cleanCountryName(raw.Country),
+		Currency: raw.Currency,
+		ExchangeDate: time.Date(2012, 2, 1, 12, 30, 0, 0, time.UTC),
+		ScrapeDate: raw.ScrapeDate,
+		Rate: cleanRate, 
+	}
+}
+
+
+func cleanCountryName(rawCountryName string) string {
+	for name, code := range CountryCodes {
+		if low := strings.ToLower(rawCountryName); strings.Contains(low, name) {
+			return code
+		}
+	}
+	panic("could not find country name")
 }
 
 

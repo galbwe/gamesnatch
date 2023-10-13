@@ -1,11 +1,6 @@
 package main
 
-import (
-	"encoding/json"
-	"fmt"
-
-	"github.com/galbwe/gamesnatch/currency"
-)
+import "github.com/galbwe/gamesnatch/currency"
 
 func main() {
 	// items := bgg.SearchForGame("clinic")
@@ -14,11 +9,5 @@ func main() {
 	// 	panic(err)
 	// }
 	// fmt.Println(string(out))
-	rates := currency.ScrapeExchageRates()
-
-	bs, e := json.Marshal(rates)
-	if e != nil {
-		panic(e)
-	}
-	fmt.Println(string(bs))
+	currency.ScrapeExchageRates()
 }
